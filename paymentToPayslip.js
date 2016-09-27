@@ -15,7 +15,7 @@ module.exports = function paymentToPayslip(unsafePaymentInformation, taxRatePeri
     const toNumber = (v) => +(v || NaN)
     const isPositive = f.assert((v) => v > 0, "must be positive");
     const isWithin = (a, b) => f.assert((v) => v >= a && v <= b, `must be within [${a},${b}]`);
-    const toMoment = (v) => f.assert((m) => m.isValid(), "must be a valid ISO 8601 date")(moment(v));
+    const toMoment = (v) => f.assert((m) => m.isValid(), "must be a valid ISO 8601 date")(moment(v, moment.ISO_8601));
 
     const outputSchema = {
         firstName: [f.required, f.isString],

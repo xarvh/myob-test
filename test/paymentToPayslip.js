@@ -46,7 +46,9 @@ describe('paymentToPayslip', () => {
         assert(/within/.test(paymentToPayslip(makePayment({ superRate: 51 })).error));
     });
 
-    it.skip('complains if fed an invalid date', () => {
+    it('complains if fed an invalid date', () => {
+        assert(/date/.test(paymentToPayslip(makePayment({ paymentEndDate: '31 March' })).error));
+        assert(/date/.test(paymentToPayslip(makePayment({ paymentEndDate: '32 March 2011' })).error));
         assert(/date/.test(paymentToPayslip(makePayment({ paymentEndDate: 'garble!' })).error));
     });
 
