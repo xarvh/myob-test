@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const fs = require('fs');
 const paymentToPayslip = require('./paymentToPayslip');
 const taxRatePeriods = require('./taxRatePeriods');
 
@@ -13,14 +14,14 @@ function main(proc, con) {
     const inputFileName = proc.argv[2];
 
     if (!inputFileName) {
-        con.error("Please specify a .json or .js input file name.");
+        con.error("Please specify a .json input file name.");
         proc.exit(-1);
     }
 
     try {
-        var paymentsList = require(inputFileName);
+        var paymentsList = JSON.parse(fs.readFileSync(inputFileName));
     } catch (e) {
-        con.error(`failed to require ${inputFileName}, is it a valid .json/.js?`);
+        con.error(`failed to require ${inputFileName}, is it a valid .json?`);
         proc.exit(-1);
     }
 

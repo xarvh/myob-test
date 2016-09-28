@@ -39,21 +39,21 @@ describe('main', () => {
 
     it('complains if input file does not contain a list', () => {
         const c = makeConsole();
-        const p = makeProcess('./test/notAList.json');
+        const p = makeProcess('test/notAList.json');
         assert.throws((() => main(p, c)), 'exit -1');
         assertMatch(/Array/, c.error.args[0][0]);
     });
 
     it('complains if input file has errors', () => {
         const c = makeConsole();
-        const p = makeProcess('./test/hasErrors.json');
+        const p = makeProcess('test/hasErrors.json');
         assert.throws((() => main(p, c)), 'exit -1');
         assertMatch(/Payment 0: .* date/, c.error.args[0][0]);
     });
 
     it('correctly calculates David and Ryan\'s payslips', () => {
         const c = makeConsole();
-        const p = makeProcess('./test/dAndR.json');
+        const p = makeProcess('test/dAndR.json');
         assert.throws((() => main(p, c)), 'exit 0');
         assert.equal(c.error.args.length, 0);
         assert.deepEqual(JSON.parse(c.info.args[0][0]), [
