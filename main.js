@@ -11,13 +11,14 @@ if (require.main === module) {
 
 function main(proc, con) {
     const inputFileName = proc.argv[2];
+
     if (!inputFileName) {
         con.error("Please specify a .json or .js input file name.");
         proc.exit(-1);
     }
 
     try {
-        const paymentsList = require(inputFileName);
+        var paymentsList = require(inputFileName);
     } catch (e) {
         con.error(`failed to require ${inputFileName}, is it a valid .json/.js?`);
         proc.exit(-1);
@@ -38,6 +39,6 @@ function main(proc, con) {
         proc.exit(-1);
     }
 
-    con.info(JSON.stringify(payslips));
+    con.info(JSON.stringify([].concat.apply([], payslips)));
     proc.exit(0);
 }
