@@ -1,10 +1,18 @@
 {
+  "main": "main.js",
   "dependencies": {
     "cartography": "^0.1.1",
     "lodash": "^4.16.2",
     "moment": "^2.15.1"
   },
+  "scripts": {
+    "test": "mocha && eslint *js"
+  },
   "devDependencies": {
+    "eslint": "^3.6.1",
+    "eslint-config-standard": "^6.1.0",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-standard": "^2.0.1",
     "mocha": "^3.1.0",
     "sinon": "^1.17.6"
   }
