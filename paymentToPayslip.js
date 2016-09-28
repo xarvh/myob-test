@@ -33,8 +33,8 @@ module.exports = function paymentToPayslip(unsafePaymentInformation, taxRatePeri
         assert(startMoment.isSameOrBefore(endMoment), "paymentStartDate must be before paymentEndDate");
 
         // TODO: these assertions can be relaxed once we support daily/hourly rates.
-        assert(startMoment.isSame(startMoment.clone().startOf('month')), "payment start date must be the start of the month");
-        assert(endMoment.isSame(endMoment.clone().endOf('month')), "payment end date must be the end of the month");
+        assert(startMoment.isSame(startMoment.clone().startOf('month'), 'day'), "payment start date must be the start of the month");
+        assert(endMoment.isSame(endMoment.clone().endOf('month'), 'day'), "payment end date must be the end of the month");
 
     } catch (e) {
         return { error: e.message };

@@ -3,6 +3,12 @@ const assert = require('assert');
 const paymentToPayslip = require('../paymentToPayslip');
 
 
+function assertMatch(re, string) {
+    assert(re.test(string), `String "${string}" should match ${re}`);
+}
+
+
+
 describe('paymentToPayslip', () => {
 
     const tax = [
@@ -32,48 +38,74 @@ describe('paymentToPayslip', () => {
     }
 
     it('complains if an argument is not provided', () => {
-        assert(/required/.test(paymentToPayslip().error));
-        assert(/required/.test(paymentToPayslip({}).error));
-        assert(/required/.test(paymentToPayslip({ firstName: 'lol' }).error));
+        assertMatch(/required/, paymentToPayslip().error);
+        assertMatch(/required/, paymentToPayslip({}).error);
+        assertMatch(/required/, paymentToPayslip({ firstName: 'lol' }).error);
     });
 
     it('complains if annual salary is not positive', () => {
-        assert(/positive/.test(paymentToPayslip(makePayment({ annualSalary: -2 })).error));
+        assertMatch(/positive/, paymentToPayslip(makePayment({ annualSalary: -2 })).error);
     });
 
     it('complains if super rate is out of bounds', () => {
-        assert(/within/.test(paymentToPayslip(makePayment({ superRate: -2 })).error));
-        assert(/within/.test(paymentToPayslip(makePayment({ superRate: 51 })).error));
+        assertMatch(/within/, paymentToPayslip(makePayment({ superRate: -2 })).error);
+        assertMatch(/within/, paymentToPayslip(makePayment({ superRate: 51 })).error);
     });
 
     it('complains if fed an invalid date', () => {
-        assert(/date/.test(paymentToPayslip(makePayment({ paymentEndDate: '31 March' })).error));
-        assert(/date/.test(paymentToPayslip(makePayment({ paymentEndDate: '32 March 2011' })).error));
-        assert(/date/.test(paymentToPayslip(makePayment({ paymentEndDate: 'garble!' })).error));
+        assertMatch(/date/, paymentToPayslip(makePayment({ paymentEndDate: '31 March' })).error);
+        assertMatch(/date/, paymentToPayslip(makePayment({ paymentEndDate: '32 March 2011' })).error);
+        assertMatch(/date/, paymentToPayslip(makePayment({ paymentEndDate: 'garble!' })).error);
     });
 
     it('complains if start date is beyond end date', () => {
-        assert(/must be before/.test(paymentToPayslip(makePayment({ paymentEndDate: '1999-01-01' })).error));
+        assertMatch(/must be before/, paymentToPayslip(makePayment({ paymentEndDate: '1999-01-01' })).error);
     });
 
     it('complains if start date is not the very start of the month', () => {
-        assert(/start/.test(paymentToPayslip(makePayment({ paymentStartDate: '2013-01-02' })).error));
-        assert(/start/.test(paymentToPayslip(makePayment({ paymentStartDate: '2013-01-22' })).error));
-        assert(/start/.test(paymentToPayslip(makePayment({ paymentStartDate: '2013-01-31' })).error));
+        assertMatch(/start/, paymentToPayslip(makePayment({ paymentStartDate: '2013-01-02' })).error);
+        assertMatch(/start/, paymentToPayslip(makePayment({ paymentStartDate: '2013-01-22' })).error);
+        assertMatch(/start/, paymentToPayslip(makePayment({ paymentStartDate: '2013-01-31' })).error);
     });
 
     it('complains if end date is not the very end of the month', () => {
-        console.log((paymentToPayslip(makePayment({ paymentEndDate: '2013-03-30' })).error));
-        assert(/end/.test(paymentToPayslip(makePayment({ paymentEndDate: '2013-03-30' })).error));
-        assert(/end/.test(paymentToPayslip(makePayment({ paymentEndDate: '2013-03-22' })).error));
-        assert(/end/.test(paymentToPayslip(makePayment({ paymentEndDate: '2013-03-02' })).error));
+        assertMatch(/end/, paymentToPayslip(makePayment({ paymentEndDate: '2013-03-30' })).error);
+        assertMatch(/end/, paymentToPayslip(makePayment({ paymentEndDate: '2013-03-22' })).error);
+        assertMatch(/end/, paymentToPayslip(makePayment({ paymentEndDate: '2013-03-02' })).error);
     });
 
     it('complains if a months is divided in two financial years', () => {
-        //TODO
+        const t1 = _.extend({}, tax[0], { end: '2013-03-10' });
+        const t2 = _.extend({}, tax[0], { start: '2013-03-11' });
+        assertMatch(/spanning/, paymentToPayslip(makePayment(), [t1, t2]).error);
     });
 
+    it('produces a correct single payslip', () => {
+        assert.deepEqual(paymentToPayslip(makePayment(), tax), [{
+            fullName: 'John Smith',
+            period: '2013-03-01 - 2013-03-31',
+            gross: 4667,
+            tax: 812,
+            net: 3855,
+            super: 420,
+        }]);
+    });
 
-    // TODO: test success
-
+    it('produces correct multiple payslip', () => {
+        assert.deepEqual(paymentToPayslip(makePayment({ paymentEndDate: '2013-04-30' }), tax), [{
+            fullName: 'John Smith',
+            period: '2013-03-01 - 2013-03-31',
+            gross: 4667,
+            tax: 812,
+            net: 3855,
+            super: 420,
+        }, {
+            fullName: 'John Smith',
+            period: '2013-04-01 - 2013-04-30',
+            gross: 4667,
+            tax: 812,
+            net: 3855,
+            super: 420,
+        }]);
+    });
 });
